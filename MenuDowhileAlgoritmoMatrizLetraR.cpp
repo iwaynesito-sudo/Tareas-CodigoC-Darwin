@@ -2,13 +2,13 @@
 #include <iomanip>
 #include <iostream>
 #include <windows.h>                  //Libreria para los colores
-#define color SetConsoleTextAttribute // Definición de Variable
+#define color SetConsoleTextAttribute // Definicion de Variable
 
 using namespace std;
 
-const int MAX = 5;
-int matrizR[5][5];
-void dibujarTablero(int tablero[MAX][MAX], int tam);
+int matrizR[5][4];
+
+void dibujarTablero(int tablero[5][4]);
 void NumeroEntre15y20();
 void PromedioNumerosPares();
 void PenultimoMenor();
@@ -34,7 +34,8 @@ int main() {
       llenarMatriz();
       break;
     case 2:
-      dibujarTablero(matrizR, MAX);
+      dibujarTablero(matrizR);
+      cout << endl;
       break;
     case 3:
       NumeroEntre15y20();
@@ -51,50 +52,72 @@ int main() {
       break;
     }
   } while (opcion != 6);
-
-  return 0;
 }
 
-void dibujarTablero(int tablero[MAX][MAX], int tam) {
+void dibujarTablero(int tablero[5][4]) {
+  HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE); // Llamar Funcion
 
   cout << "    ";
-  for (int j = 0; j < tam; j++) {
+  for (int j = 0; j < 4; j++) {
     cout << "   " << j << "    ";
   }
   cout << "\n";
 
   cout << "    +";
-  for (int j = 0; j < tam; j++) {
+  for (int j = 0; j < 4; j++) {
     cout << "-------+";
   }
   cout << "\n";
 
-  for (int i = 0; i < tam; i++) {
+  for (int i = 0; i < 5; i++) {
 
     cout << "  " << i << " |";
-    for (int j = 0; j < tam; j++) {
-      cout << "  " << setw(2) << tablero[i][j] << "   |";
+    for (int j = 0; j < 4; j++) {
+      bool esSombreado = (j == 0) || (i == 0 && j <= 3) || (j == 3 && i <= 2) ||
+                         (i == 2 && j <= 2) || (i == 3 && j == 2) ||
+                         (i == 4 && j == 3);
+
+      if (esSombreado) {
+        color(hConsole, 2); //  Color Verde
+      } else {
+        color(hConsole, 7); //  Color Gris Claro
+      }
+      cout << "  " << setw(2) << tablero[i][j] << "   ";
+      color(hConsole, 7); // Restaurar color de la linea divisoria
+      cout << "|";
     }
     cout << "\n";
 
     cout << "    |";
-    for (int j = 0; j < tam; j++) {
-      cout << " [" << i << "," << j << "] |";
+    for (int j = 0; j < 4; j++) {
+      bool esSombreado = (j == 0) || (i == 0 && j <= 3) || (j == 3 && i <= 2) ||
+                         (i == 2 && j <= 2) || (i == 3 && j == 2) ||
+                         (i == 4 && j == 3);
+
+      if (esSombreado) {
+        color(hConsole, 2); //  Color Verde
+      } else {
+        color(hConsole, 7); //  Color Gris Claro
+      }
+      cout << " [" << i << "," << j << "] ";
+      color(hConsole, 7); // Restaurar color de la linea divisoria
+      cout << "|";
     }
     cout << "\n";
 
     cout << "    +";
-    for (int j = 0; j < tam; j++) {
+    for (int j = 0; j < 4; j++) {
       cout << "-------+";
     }
     cout << "\n";
   }
+  color(hConsole, 7); // Restaurar color por defecto
 }
 
 void NumeroEntre15y20() {
   int contadorentre15y20 = 0;
   for (int i = 0; i < 5; i++) {
-    for (int j = 0; j < 5; j++) {
+    for (int j = 0; j < 4; j++) {
       if (matrizR[i][j] >= 15 && matrizR[i][j] <= 20) {
         contadorentre15y20++;
       }
@@ -110,15 +133,19 @@ void PromedioNumerosPares() {
   int promedio = 0;
   int acumuladorPares = 0;
   for (int i = 0; i < 5; i++) {
-    for (int j = 0; j < 5; j++) {
+    for (int j = 0; j < 4; j++) {
       if (matrizR[i][j] % 2 == 0) {
         acumuladorPares = acumuladorPares + matrizR[i][j];
         contadorPares = contadorPares + 1;
       }
     }
   }
-  promedio = acumuladorPares / contadorPares;
-  cout << "Promedio de los numeros pares: " << promedio << endl;
+  if (contadorPares > 0) {
+    promedio = acumuladorPares / contadorPares;
+    cout << "Promedio de los numeros pares: " << promedio << endl;
+  } else {
+    cout << "No hay numeros pares en la matriz" << endl;
+  }
   cout << endl;
 }
 
@@ -127,7 +154,7 @@ void PenultimoMenor() {
   int penultimo = 999;
 
   for (int i = 0; i < 5; i++) {
-    for (int j = 0; j < 5; j++) {
+    for (int j = 0; j < 4; j++) {
       if (matrizR[i][j] < menor) {
         penultimo = menor;
         menor = matrizR[i][j];
@@ -142,39 +169,32 @@ void PenultimoMenor() {
 }
 
 void mostarMatriz() {
-  const int filas = 5;
-  const int columnas = 5;
-  int matriz[filas][columnas];
-
   bool esSombreado = false;
-  HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE); // Llamar Función
-  for (int i = 0; i < filas; i++) {
-    for (int j = 0; j < columnas; j++) {
-      esSombreado = (i == j) || (i + j == filas - 1);
+  HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE); // Llamar Funcion
+
+  for (int i = 0; i < 5; i++) {
+    for (int j = 0; j < 4; j++) {
+      esSombreado = (j == 0) || (i == 0 && j <= 3) || (j == 3 && i <= 2) ||
+                    (i == 2 && j <= 2) || (i == 3 && j == 2) ||
+                    (i == 4 && j == 3);
 
       if (esSombreado) {
-        color(hConsole, 2); //  Color  Verde
+        color(hConsole, 2); //  Color Verde
       } else {
         color(hConsole, 7); //  Color Gris Claro
       }
-      cout << matriz[i][j] << "  ";
+      cout << matrizR[i][j] << "  ";
     }
     cout << "\n";
   }
-
-  for (int pintar = 1; pintar < 255; pintar++) {
-    color(hConsole, pintar);
-    cout << pintar << ": \nEste es el color..";
-    if (pintar % 50 == 0) {
-      system("PAUSE");
-    }
-  }
+  color(hConsole, 7); // Restaurar color por defecto
 }
+
 void llenarMatriz() {
   int dato = 0;
 
   for (int i = 0; i < 5; i++) {
-    for (int j = 0; j < 5; j++) {
+    for (int j = 0; j < 4; j++) {
       cout << "ingrese datos" << "[" << i << "," << j << "]:";
       cin >> dato;
       matrizR[i][j] = dato;
